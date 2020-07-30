@@ -1,5 +1,5 @@
 #!/bin/bash
-
+## version is 9.1.2.0 at time when this file was created
 docker run \
   --env LICENSE=accept \
   --env MQ_QMGR_NAME=QM1 \
