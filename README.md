@@ -74,6 +74,8 @@ Here is the prototype code when I initially got this working.  The code currentl
 
 ## Client Setup Code (without SSL)
 
+Use an if-condition to ensure this only executes once during a multi-threaded test.
+
 ```
 import com.ibm.msg.client.jms.JmsConnectionFactory
 import com.ibm.msg.client.jms.JmsFactoryFactory
@@ -186,6 +188,8 @@ consumer.close()
 ```
 
 ## Threads Stop Code
+
+Use an if-condition to ensure this only executes once during a multi-threaded test.
 
 ```
 System.getProperties().get("Session").close()
