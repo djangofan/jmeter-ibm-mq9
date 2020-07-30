@@ -56,3 +56,9 @@ docker run \
   ibmcom/mq
 
 ```
+
+## What It Looks Like
+
+![JMeter Test Plan Example](https://github.com/djangofan/jmeter-ibm-mq9/blob/master/jmeterGui.png)
+
+
