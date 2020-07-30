@@ -16,6 +16,10 @@ After that, make sure you use the plugins manger to add all the plugins that con
 
 Then, you will be able to load the project file.
 
+## Included Project Files
+
+- simplestExample.jmx - will only work when MQ is configured with no password and no SSL
+
 
 ## Other Information
 
@@ -23,27 +27,20 @@ Then, you will be able to load the project file.
 - https://github.com/ibm-messaging/mq-container/blob/master/docs/developer-config.md
 - https://www.blazemeter.com/blog/ibm-mq-testing-with-jmeter-learn-how
 
-- https://localhost:9009/ibmmq/console
+- Admin console so you can watch the queue:  https://localhost:9009/ibmmq/console
 --  User: admin
 --  Password: passw0rd
 
-- http://localhost:9157/metrics
-
-- Version found at: https://hub.docker.com/_/ibm-mq-advanced -- 9.1.2.0
-
-## Other options
-
-- MQ_DEV - Set this to false to stop the default objects being created.
-- MQ_ADMIN_PASSWORD - Changes the password of the admin user. Must be at least 8 characters long.
-- MQ_APP_PASSWORD
+- Prometheus metrics:  http://localhost:9157/metrics
 
 
-## Setup MQ Script
+## Setup MQ Service Script
 
 A bash script to start the default MQ.   This is not persistent but it can be configured to be persistent.
 
 ```
 #!/bin/bash
+## version is 9.1.2.0 at time of this documentation
 docker run \
   --env LICENSE=accept \
   --env MQ_QMGR_NAME=QM1 \
@@ -56,6 +53,13 @@ docker run \
   ibmcom/mq
 
 ```
+
+### Other options you can include
+
+- MQ_DEV - Set this to false to stop the default objects being created.
+- MQ_ADMIN_PASSWORD - Changes the password of the admin user. Must be at least 8 characters long.
+- MQ_APP_PASSWORD
+
 
 ## What It Looks Like
 
