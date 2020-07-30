@@ -2,8 +2,22 @@
 
 Simplest examples of JMeter with Dockerized IBM MQ9.
 
-## Information
+## Setup
 
+This example uses JMeter 5.3 .  You can download from the usual location.
+
+The following 3 libs need to be loaded in JMeter lib/ext folder:
+
+- the JMeter plugin manager
+- com.ibm.mq.allclient-9.1.5.0.jar
+- javax.jms-api-2.0.1.jar
+
+After that, make sure you use the plugins manger to add all the plugins that contain extra charts and graphs.
+
+Then, you will be able to load the project file.
+
+
+## Other Information
 
 - https://github.com/ibm-messaging/mq-container/blob/master/docs/usage.md
 - https://github.com/ibm-messaging/mq-container/blob/master/docs/developer-config.md
