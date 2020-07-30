@@ -38,6 +38,11 @@
             <stringProp name="Argument.value">50</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
+          <elementProp name="delay" elementType="Argument">
+            <stringProp name="Argument.name">delay</stringProp>
+            <stringProp name="Argument.value">20</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
         </collectionProp>
       </Arguments>
       <hashTree/>
@@ -55,6 +60,55 @@
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </SetupThreadGroup>
       <hashTree>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Setup" enabled="true">
+          <stringProp name="cacheKey">true</stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="script">import com.ibm.msg.client.jms.JmsConnectionFactory
+import com.ibm.msg.client.jms.JmsFactoryFactory
+import com.ibm.msg.client.wmq.WMQConstants
+
+import javax.jms.Session
+
+def hostName = &quot;127.0.0.1&quot;
+def hostPort = 1414
+def channelName = &quot;DEV.APP.SVRCONN&quot;
+def queueManagerName = &quot;QM1&quot;
+def queueName = &quot;DEV.QUEUE.1&quot;
+
+def ff = JmsFactoryFactory.getInstance(WMQConstants.WMQ_PROVIDER)
+def cf = ff.createConnectionFactory()
+
+cf.setStringProperty(WMQConstants.WMQ_HOST_NAME, hostName)
+cf.setIntProperty(WMQConstants.WMQ_PORT, hostPort)
+cf.setStringProperty(WMQConstants.WMQ_CHANNEL, channelName)
+cf.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT)
+cf.setStringProperty(WMQConstants.WMQ_QUEUE_MANAGER, queueManagerName)
+
+//cf.setStringProperty(WMQConstants.USERID, &quot;admin&quot;)
+//cf.setStringProperty(WMQConstants.PASSWORD, &quot;passw0rd&quot;)
+//cf.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true)
+
+//def conn = cf.createConnection(&quot;admin&quot;, &quot;passw0rd&quot;)
+def conn = cf.createConnection()
+def sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)
+
+def destination = sess.createQueue(queueName)
+
+conn.start()
+
+log.info(&quot;#### Start completed!&quot;)
+
+System.getProperties().put(&quot;Session&quot;, sess)
+System.getProperties().put(&quot;Connection&quot;, conn)
+System.getProperties().put(&quot;Destination&quot;, destination)
+
+vars.put(&quot;setupDone&quot;, &quot;true&quot;)
+
+</stringProp>
+          <stringProp name="scriptLanguage">groovy</stringProp>
+        </JSR223Sampler>
+        <hashTree/>
         <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="true">
           <stringProp name="IfController.condition">&quot;${setupDone}&quot;==&quot;false&quot;</stringProp>
           <boolProp name="IfController.evaluateAll">true</boolProp>
@@ -71,18 +125,15 @@ import com.ibm.msg.client.wmq.WMQConstants
 
 import javax.jms.Session
 
-// 1
 def hostName = &quot;127.0.0.1&quot;
 def hostPort = 1414
 def channelName = &quot;DEV.APP.SVRCONN&quot;
 def queueManagerName = &quot;QM1&quot;
 def queueName = &quot;DEV.QUEUE.1&quot;
 
-// 2
 def ff = JmsFactoryFactory.getInstance(WMQConstants.WMQ_PROVIDER)
 def cf = ff.createConnectionFactory()
 
-// 3
 cf.setStringProperty(WMQConstants.WMQ_HOST_NAME, hostName)
 cf.setIntProperty(WMQConstants.WMQ_PORT, hostPort)
 cf.setStringProperty(WMQConstants.WMQ_CHANNEL, channelName)
@@ -93,24 +144,20 @@ cf.setStringProperty(WMQConstants.WMQ_QUEUE_MANAGER, queueManagerName)
 //cf.setStringProperty(WMQConstants.PASSWORD, &quot;passw0rd&quot;)
 //cf.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true)
 
-// 4
 //def conn = cf.createConnection(&quot;admin&quot;, &quot;passw0rd&quot;)
 def conn = cf.createConnection()
 def sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)
 
-// 5
 def destination = sess.createQueue(queueName)
 
 conn.start()
 
 log.info(&quot;#### Start completed!&quot;)
 
-// 6
 System.getProperties().put(&quot;Session&quot;, sess)
 System.getProperties().put(&quot;Connection&quot;, conn)
 System.getProperties().put(&quot;Destination&quot;, destination)
 
-// 7
 vars.put(&quot;setupDone&quot;, &quot;true&quot;)
 
 </stringProp>
@@ -128,56 +175,50 @@ vars.put(&quot;setupDone&quot;, &quot;true&quot;)
         <stringProp name="ThreadGroup.num_threads">${nrThreads}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">${__jexl2(${duration}+10)}</stringProp>
+        <stringProp name="ThreadGroup.duration">${__jexl2(${duration})}</stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
-          <intProp name="calcMode">2</intProp>
-          <stringProp name="throughput">${__jexl2(${sampleAtSecond}*60)}</stringProp>
-        </ConstantThroughputTimer>
-        <hashTree/>
-        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Message Producer" enabled="true">
-          <stringProp name="scriptLanguage">groovy</stringProp>
-          <stringProp name="parameters"></stringProp>
-          <stringProp name="filename"></stringProp>
-          <stringProp name="cacheKey">true</stringProp>
-          <stringProp name="script">import java.time.Instant
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Simple Controller" enabled="true"/>
+        <hashTree>
+          <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
+            <intProp name="calcMode">2</intProp>
+            <stringProp name="throughput">${__jexl2(${sampleAtSecond}*60)}</stringProp>
+          </ConstantThroughputTimer>
+          <hashTree/>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Message Producer" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="script">import java.time.Instant
 
-// 1
 def sess = System.getProperties().get(&quot;Session&quot;)
 def destination = System.getProperties().get(&quot;Destination&quot;)
 
-// 2
 def producer = sess.createProducer(destination)
-
-// 3
 def rnd = new Random(System.currentTimeMillis())
 
-// 4
 def payload = String.format(&quot;JMeter...IBM MQ...test message no. %09d!&quot;, rnd.nextInt(Integer.MAX_VALUE))
 def msg = sess.createTextMessage(payload)
 
 def start = Instant.now()
 
-// 5
 producer.send(msg)
 
 def stop = Instant.now()
-
-// 6
 producer.close()
 
-// 7
 SampleResult.setResponseData(msg.toString())
 SampleResult.setDataType( org.apache.jmeter.samplers.SampleResult.TEXT )
 SampleResult.setLatency( stop.toEpochMilli() - start.toEpochMilli() )
 
 
 </stringProp>
-        </JSR223Sampler>
-        <hashTree/>
+          </JSR223Sampler>
+          <hashTree/>
+        </hashTree>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group - Consumer" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
@@ -188,22 +229,24 @@ SampleResult.setLatency( stop.toEpochMilli() - start.toEpochMilli() )
         <stringProp name="ThreadGroup.num_threads">${nrThreads}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">${__jexl2(${duration}+30)}</stringProp>
-        <stringProp name="ThreadGroup.delay"></stringProp>
+        <stringProp name="ThreadGroup.duration">${__jexl2(${duration})}</stringProp>
+        <stringProp name="ThreadGroup.delay">${delay}</stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
-          <intProp name="calcMode">2</intProp>
-          <stringProp name="throughput">${__jexl2(${sampleAtSecond}*60)}</stringProp>
-        </ConstantThroughputTimer>
-        <hashTree/>
-        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Message Consumer" enabled="true">
-          <stringProp name="scriptLanguage">groovy</stringProp>
-          <stringProp name="parameters"></stringProp>
-          <stringProp name="filename"></stringProp>
-          <stringProp name="cacheKey">true</stringProp>
-          <stringProp name="script">import javax.jms.TextMessage
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Simple Controller" enabled="true"/>
+        <hashTree>
+          <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
+            <intProp name="calcMode">2</intProp>
+            <stringProp name="throughput">${__jexl2(${sampleAtSecond}*60)}</stringProp>
+          </ConstantThroughputTimer>
+          <hashTree/>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Message Consumer" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="script">import javax.jms.TextMessage
 import javax.jms.BytesMessage
 
 import java.time.LocalDate
@@ -212,24 +255,16 @@ import java.time.Instant
 import java.time.format.DateTimeFormatter
 
 log.info(&quot;#### Looking for messages to consume...&quot;)
-
-// 1
 def sess = System.getProperties().get(&quot;Session&quot;)
 def destination = System.getProperties().get(&quot;Destination&quot;)
 
-// 2
 def consumer = sess.createConsumer(destination)
-
 def start = Instant.now()
 
-// 3
 def msg = consumer.receive(1000)
-
 def stop = Instant.now()
 
-// 4
 if (msg != null) {
-            // 5
 	if (msg instanceof BytesMessage) {
 		def tmp = msg.asType(BytesMessage)
 		log.debug(&quot;#### Incoming BytesMessage contains &quot; + tmp.getBodyLength() + &quot; bytes&quot;)
@@ -239,19 +274,15 @@ if (msg != null) {
 	} else {
 		log.debug(&quot;#### Incoming message has unexpected format!&quot;)
 	}
-
-     // 6
 	LocalDate date = LocalDate.parse(msg.getStringProperty(&quot;JMS_IBM_PutDate&quot;),
 					DateTimeFormatter.ofPattern(&quot;uuuuMMdd&quot;))
 	LocalTime time = LocalTime.parse(msg.getStringProperty(&quot;JMS_IBM_PutTime&quot;),
 					DateTimeFormatter.ofPattern(&quot;HHmmssSS&quot;))
 
-	// 7
      def timestampDetail = String.format(&quot;#### Incoming message was placed in queue @ %s - %s&quot;, date, time)
 	log.info(timestampDetail)
 
-	// 8
-            SampleResult.setResponseData(msg.toString() + &quot;\n\n&quot; + timestampDetail)
+     SampleResult.setResponseData(msg.toString() + &quot;\n\n&quot; + timestampDetail)
 	SampleResult.setDataType( org.apache.jmeter.samplers.SampleResult.TEXT )
 	SampleResult.setLatency( stop.toEpochMilli() - start.toEpochMilli() )
 
@@ -259,11 +290,11 @@ if (msg != null) {
 	log.info(&quot;#### Nothing to fetch!&quot;)
 }
 
-// 9
 consumer.close()
 </stringProp>
-        </JSR223Sampler>
-        <hashTree/>
+          </JSR223Sampler>
+          <hashTree/>
+        </hashTree>
       </hashTree>
       <PostThreadGroup guiclass="PostThreadGroupGui" testclass="PostThreadGroup" testname="tearDown Thread Group" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
@@ -295,7 +326,6 @@ System.getProperties().get(&quot;Connection&quot;).close()
 
 log.info(&quot;#### Stop completed!&quot;)
 
-// 2
 vars.put(&quot;stopDone&quot;, &quot;true&quot;)
 </stringProp>
           </JSR223Timer>
