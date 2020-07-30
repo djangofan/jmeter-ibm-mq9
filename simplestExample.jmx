@@ -4,8 +4,7 @@
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
-      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
-      <boolProp name="TestPlan.serialize_threadgroups">true</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
@@ -16,7 +15,7 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="duration" elementType="Argument">
             <stringProp name="Argument.name">duration</stringProp>
-            <stringProp name="Argument.value">600</stringProp>
+            <stringProp name="Argument.value">120</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="setupDone" elementType="Argument">
@@ -56,11 +55,17 @@
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </SetupThreadGroup>
       <hashTree>
-        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Setup" enabled="true">
-          <stringProp name="cacheKey">true</stringProp>
-          <stringProp name="filename"></stringProp>
-          <stringProp name="parameters"></stringProp>
-          <stringProp name="script">import com.ibm.msg.client.jms.JmsConnectionFactory
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="true">
+          <stringProp name="IfController.condition">&quot;${setupDone}&quot;==&quot;false&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">true</boolProp>
+          <boolProp name="IfController.useExpression">true</boolProp>
+        </IfController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Setup" enabled="true">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import com.ibm.msg.client.jms.JmsConnectionFactory
 import com.ibm.msg.client.jms.JmsFactoryFactory
 import com.ibm.msg.client.wmq.WMQConstants
 
@@ -109,17 +114,12 @@ System.getProperties().put(&quot;Destination&quot;, destination)
 vars.put(&quot;setupDone&quot;, &quot;true&quot;)
 
 </stringProp>
-          <stringProp name="scriptLanguage">groovy</stringProp>
-        </JSR223Sampler>
-        <hashTree/>
-        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="false">
-          <stringProp name="IfController.condition">&quot;${setupDone}&quot;==&quot;false&quot;</stringProp>
-          <boolProp name="IfController.evaluateAll">true</boolProp>
-          <boolProp name="IfController.useExpression">true</boolProp>
-        </IfController>
-        <hashTree/>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+        </hashTree>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group - Producer" enabled="false">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group - Producer" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -138,10 +138,11 @@ vars.put(&quot;setupDone&quot;, &quot;true&quot;)
           <stringProp name="throughput">${__jexl2(${sampleAtSecond}*60)}</stringProp>
         </ConstantThroughputTimer>
         <hashTree/>
-        <JSR223Timer guiclass="TestBeanGUI" testclass="JSR223Timer" testname="JSR223 Producer" enabled="true">
-          <stringProp name="cacheKey">true</stringProp>
-          <stringProp name="filename"></stringProp>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Message Producer" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
           <stringProp name="parameters"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="cacheKey">true</stringProp>
           <stringProp name="script">import java.time.Instant
 
 // 1
@@ -175,20 +176,19 @@ SampleResult.setLatency( stop.toEpochMilli() - start.toEpochMilli() )
 
 
 </stringProp>
-          <stringProp name="scriptLanguage">groovy</stringProp>
-        </JSR223Timer>
+        </JSR223Sampler>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group - Consumer" enabled="false">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group - Consumer" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">1</stringProp>
+          <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.num_threads">${nrThreads}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
-        <boolProp name="ThreadGroup.scheduler">false</boolProp>
-        <stringProp name="ThreadGroup.duration"></stringProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
+        <stringProp name="ThreadGroup.duration">${__jexl2(${duration}+30)}</stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
@@ -198,7 +198,7 @@ SampleResult.setLatency( stop.toEpochMilli() - start.toEpochMilli() )
           <stringProp name="throughput">${__jexl2(${sampleAtSecond}*60)}</stringProp>
         </ConstantThroughputTimer>
         <hashTree/>
-        <JSR223Timer guiclass="TestBeanGUI" testclass="JSR223Timer" testname="JSR223 Consumer" enabled="true">
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Message Consumer" enabled="true">
           <stringProp name="scriptLanguage">groovy</stringProp>
           <stringProp name="parameters"></stringProp>
           <stringProp name="filename"></stringProp>
@@ -210,6 +210,8 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+
+log.info(&quot;#### Looking for messages to consume...&quot;)
 
 // 1
 def sess = System.getProperties().get(&quot;Session&quot;)
@@ -234,17 +236,18 @@ if (msg != null) {
 	} else if (msg instanceof TextMessage) {
 		def tmp = msg.asType(TextMessage)
 		log.debug(&quot;#### Incoming TextMessage contains -&gt; &quot; + tmp.getText())
-	} else
+	} else {
 		log.debug(&quot;#### Incoming message has unexpected format!&quot;)
+	}
 
-            // 6
+     // 6
 	LocalDate date = LocalDate.parse(msg.getStringProperty(&quot;JMS_IBM_PutDate&quot;),
 					DateTimeFormatter.ofPattern(&quot;uuuuMMdd&quot;))
 	LocalTime time = LocalTime.parse(msg.getStringProperty(&quot;JMS_IBM_PutTime&quot;),
 					DateTimeFormatter.ofPattern(&quot;HHmmssSS&quot;))
 
 	// 7
-            def timestampDetail = String.format(&quot;#### Incoming message was placed in queue @ %s - %s&quot;, date, time)
+     def timestampDetail = String.format(&quot;#### Incoming message was placed in queue @ %s - %s&quot;, date, time)
 	log.info(timestampDetail)
 
 	// 8
@@ -259,7 +262,7 @@ if (msg != null) {
 // 9
 consumer.close()
 </stringProp>
-        </JSR223Timer>
+        </JSR223Sampler>
         <hashTree/>
       </hashTree>
       <PostThreadGroup guiclass="PostThreadGroupGui" testclass="PostThreadGroup" testname="tearDown Thread Group" enabled="true">
