@@ -2,7 +2,32 @@
 
 Simplest examples of JMeter 5.3 with Dockerized IBM MQ 9.1.2.0.
 
-## Setup
+## Setup MQ Service Script
+
+A bash script to start the default MQ.   This is not persistent but it can be configured to be persistent.
+
+```
+#!/bin/bash
+## version is 9.1.2.0 at time of this documentation
+docker run \
+  --env LICENSE=accept \
+  --env MQ_QMGR_NAME=QM1 \
+  --env MQ_ENABLE_METRICS=true \
+  --env MQ_ENABLE_EMBEDDED_WEB_SERVER=true \
+  --publish 1414:1414 \
+  --publish 9009:9443 \
+  --publish 9157:9157 \
+  --detach \
+  ibmcom/mq
+```
+
+#### Other options you can include
+
+- MQ_DEV - Set this to false to stop the default objects being created.
+- MQ_ADMIN_PASSWORD - Changes the password of the admin user. Must be at least 8 characters long.
+- MQ_APP_PASSWORD
+
+## JMeter Setup
 
 This example uses JMeter 5.3 .  You can download from the usual location.
 
@@ -32,33 +57,6 @@ Then, you will be able to load the project file.
     -  Password: passw0rd
 
 * Prometheus metrics:  http://localhost:9157/metrics
-
-
-## Setup MQ Service Script
-
-A bash script to start the default MQ.   This is not persistent but it can be configured to be persistent.
-
-```
-#!/bin/bash
-## version is 9.1.2.0 at time of this documentation
-docker run \
-  --env LICENSE=accept \
-  --env MQ_QMGR_NAME=QM1 \
-  --env MQ_ENABLE_METRICS=true \
-  --env MQ_ENABLE_EMBEDDED_WEB_SERVER=true \
-  --publish 1414:1414 \
-  --publish 9009:9443 \
-  --publish 9157:9157 \
-  --detach \
-  ibmcom/mq
-
-```
-
-### Other options you can include
-
-- MQ_DEV - Set this to false to stop the default objects being created.
-- MQ_ADMIN_PASSWORD - Changes the password of the admin user. Must be at least 8 characters long.
-- MQ_APP_PASSWORD
 
 
 ## What It Looks Like
