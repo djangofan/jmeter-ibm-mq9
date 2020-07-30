@@ -180,7 +180,9 @@ vars.put(&quot;setupDone&quot;, &quot;true&quot;)
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Simple Controller" enabled="true"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Simple Controller" enabled="true">
+          <stringProp name="TestPlan.comments">Simple Controller isn&apos;t requred here for this to work.</stringProp>
+        </GenericController>
         <hashTree>
           <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
             <intProp name="calcMode">2</intProp>
@@ -234,7 +236,9 @@ SampleResult.setLatency( stop.toEpochMilli() - start.toEpochMilli() )
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Simple Controller" enabled="true"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Simple Controller" enabled="true">
+          <stringProp name="TestPlan.comments">Simple Controller isn&apos;t requred here for this to work.</stringProp>
+        </GenericController>
         <hashTree>
           <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
             <intProp name="calcMode">2</intProp>
