@@ -27,6 +27,20 @@ docker run \
 - MQ_ADMIN_PASSWORD - Changes the password of the admin user. Must be at least 8 characters long.
 - MQ_APP_PASSWORD
 
+#### Related Info
+
+* https://github.com/ibm-messaging/mq-container/blob/master/docs/usage.md
+* https://github.com/ibm-messaging/mq-container/blob/master/docs/developer-config.md
+
+#### Administration
+
+- Admin console so you can watch the queue:  https://localhost:9009/ibmmq/console
+    -  User: admin
+    -  Password: passw0rd
+
+* Prometheus metrics:  http://localhost:9157/metrics
+
+
 ## JMeter Setup
 
 This example uses JMeter 5.3 .  You can download from the usual location.
@@ -41,22 +55,11 @@ After that, make sure you use the plugins manger to add all the plugins that con
 
 Then, you will be able to load the project file.
 
+* https://www.blazemeter.com/blog/ibm-mq-testing-with-jmeter-learn-how
+
 ## Included Project Files
 
 - simplestExample.jmx - will only work when MQ is configured with no password and no SSL
-
-
-## Other Information
-
-* https://github.com/ibm-messaging/mq-container/blob/master/docs/usage.md
-* https://github.com/ibm-messaging/mq-container/blob/master/docs/developer-config.md
-* https://www.blazemeter.com/blog/ibm-mq-testing-with-jmeter-learn-how
-
-- Admin console so you can watch the queue:  https://localhost:9009/ibmmq/console
-    -  User: admin
-    -  Password: passw0rd
-
-* Prometheus metrics:  http://localhost:9157/metrics
 
 
 ## What It Looks Like
