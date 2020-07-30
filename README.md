@@ -1,6 +1,6 @@
 # jmeter-ibm-mq9
 
-Simplest examples of JMeter with Dockerized IBM MQ9.
+Simplest examples of JMeter 5.3 with Dockerized IBM MQ 9.1.2.0.
 
 ## Setup
 
