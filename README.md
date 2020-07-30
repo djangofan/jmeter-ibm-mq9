@@ -66,6 +66,11 @@ docker run \
 ![JMeter Test Plan Example](https://github.com/djangofan/jmeter-ibm-mq9/blob/master/jmeterGui.png)
 
 
+
+# Prototype Code
+
+Here is the prototype code when I initially got this working.  The code currently checked into this repo may have been updated since then.
+
 ## Client Setup Code (without SSL)
 
 ```
