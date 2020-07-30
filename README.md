@@ -28,8 +28,8 @@ Then, you will be able to load the project file.
 * https://www.blazemeter.com/blog/ibm-mq-testing-with-jmeter-learn-how
 
 * Admin console so you can watch the queue:  https://localhost:9009/ibmmq/console
-**  User: admin
-**  Password: passw0rd
+    **  User: admin
+    **  Password: passw0rd
 
 * Prometheus metrics:  http://localhost:9157/metrics
 
