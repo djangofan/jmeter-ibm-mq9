@@ -43,13 +43,17 @@ docker run \
 
 * Prometheus metrics:  http://localhost:9157/metrics
 
-#### Setup certs
+#### Setup Certs And SSL
 
 The `cert` and `key` are already supplied in this repo in the `cert/mykey` folder, but if you want to re-create them:
 
      openssl req -newkey rsa:2048 -nodes -keyout key.key -x509 -days 365 -out key.crt
 
 The `cert/mykey` folder is mapped as a volume to the MQ server, which will enable the SSL connection on startup.
+
+Also included is `clientkey.jks` keystore if you need to make a client connection with it.
+
+https://developer.ibm.com/components/ibm-mq/tutorials/mq-secure-msgs-tls/
 
 
 ## JMeter Setup
