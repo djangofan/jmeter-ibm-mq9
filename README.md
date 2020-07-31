@@ -75,6 +75,8 @@ Then, you will be able to load the project file.
 ## Included Project Files
 
 - simplestExample.jmx - will only work when MQ is configured with no password and no SSL
+     - in this case, when you start the MQ server, don't include the volume mapping
+- sslExample.jmx - after enabling SSL in the MQ server, this project includes code to connect with a keystore
 
 
 ## What It Looks Like

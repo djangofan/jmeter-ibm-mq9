@@ -15,7 +15,7 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="duration" elementType="Argument">
             <stringProp name="Argument.name">duration</stringProp>
-            <stringProp name="Argument.value">120</stringProp>
+            <stringProp name="Argument.value">10</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="setupDone" elementType="Argument">
@@ -30,7 +30,7 @@
           </elementProp>
           <elementProp name="nrThreads" elementType="Argument">
             <stringProp name="Argument.name">nrThreads</stringProp>
-            <stringProp name="Argument.value">10</stringProp>
+            <stringProp name="Argument.value">1</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="sampleAtSecond" elementType="Argument">
@@ -40,7 +40,12 @@
           </elementProp>
           <elementProp name="delay" elementType="Argument">
             <stringProp name="Argument.name">delay</stringProp>
-            <stringProp name="Argument.value">20</stringProp>
+            <stringProp name="Argument.value">2</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="jksLocation" elementType="Argument">
+            <stringProp name="Argument.name">jksLocation</stringProp>
+            <stringProp name="Argument.value">/Users/s006746/Documents/GitHub/QA/OTHER/jmeter-ibm-mq9/ks/clientkey.jks</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -67,14 +72,66 @@
           <stringProp name="script">import com.ibm.msg.client.jms.JmsConnectionFactory
 import com.ibm.msg.client.jms.JmsFactoryFactory
 import com.ibm.msg.client.wmq.WMQConstants
-
+import javax.net.ssl.SSLSocketFactory
+import javax.net.ssl.SSLContext
+import javax.net.ssl.KeyManagerFactory
+import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.CertPathTrustManagerParameters
 import javax.jms.Session
+import java.security.KeyStore
+import java.security.SecureRandom
+import java.security.cert.CertPathBuilder
+import java.security.cert.PKIXRevocationChecker
+import java.security.cert.PKIXBuilderParameters
+import java.security.cert.X509CertSelector
+
 
 def hostName = &quot;127.0.0.1&quot;
 def hostPort = 1414
 def channelName = &quot;DEV.APP.SVRCONN&quot;
 def queueManagerName = &quot;QM1&quot;
 def queueName = &quot;DEV.QUEUE.1&quot;
+
+
+// https://github.standard.com/QA/hr-extract-requests-adaptor/blob/master/services/src/test/java/com/standard/qa/jms/SSLHRAuditProducer.java
+SSLContext sslContext() {
+    File file = new File(vars.get(&quot;jksLocation&quot;))
+    def jkspath = file.getAbsolutePath()
+    log.info(&quot;JKS Loaded: &quot; + jkspath)
+    try (InputStream cert = new FileInputStream(jkspath)) {
+        KeyStore caCertsKeyStore = KeyStore.getInstance(&quot;JKS&quot;)
+        caCertsKeyStore.load(cert, &quot;changeit&quot;.toCharArray())
+
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+
+        CertPathBuilder cpb = CertPathBuilder.getInstance(&quot;PKIX&quot;)
+        PKIXRevocationChecker rc = (PKIXRevocationChecker) cpb.getRevocationChecker()
+        rc.setOptions(EnumSet.of(
+            PKIXRevocationChecker.Option.PREFER_CRLS,
+            PKIXRevocationChecker.Option.ONLY_END_ENTITY,
+            PKIXRevocationChecker.Option.SOFT_FAIL,
+            PKIXRevocationChecker.Option.NO_FALLBACK))
+                    
+        PKIXBuilderParameters pkixParams = new PKIXBuilderParameters(caCertsKeyStore, new X509CertSelector())
+        pkixParams.addCertPathChecker(rc)
+
+        kmf.init(caCertsKeyStore, &quot;changeit&quot;.toCharArray())
+        tmf.init(new CertPathTrustManagerParameters(pkixParams))
+
+        SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;)
+        sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom())
+
+        log.info(&quot;Finished acquiring ssl context.&quot;)
+        return sslContext
+    } catch (Exception e) {
+        log.error(e);
+    }
+}
+
+
+log.info(&quot;#### Start... &quot;)
+
 
 def ff = JmsFactoryFactory.getInstance(WMQConstants.WMQ_PROVIDER)
 def cf = ff.createConnectionFactory()
@@ -85,10 +142,17 @@ cf.setStringProperty(WMQConstants.WMQ_CHANNEL, channelName)
 cf.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT)
 cf.setStringProperty(WMQConstants.WMQ_QUEUE_MANAGER, queueManagerName)
 
+cf.setStringProperty(WMQConstants.WMQ_SSL_CIPHER_SPEC, &quot;TLS_RSA_WITH_AES_128_GCM_SHA256&quot;)
+cf.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true)
+cf.setBooleanProperty(&quot;com.ibm.mq.cfg.useIBMCipherMappings&quot;, false)
+SSLSocketFactory sslSocketFactory = sslContext().getSocketFactory()
+cf.setSSLSocketFactory(sslSocketFactory)
+
+log.error(&quot;STOP&quot;)
+
+
 //cf.setStringProperty(WMQConstants.USERID, &quot;admin&quot;)
 //cf.setStringProperty(WMQConstants.PASSWORD, &quot;passw0rd&quot;)
-//cf.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true)
-
 //def conn = cf.createConnection(&quot;admin&quot;, &quot;passw0rd&quot;)
 def conn = cf.createConnection()
 def sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)
@@ -114,59 +178,9 @@ vars.put(&quot;setupDone&quot;, &quot;true&quot;)
           <boolProp name="IfController.evaluateAll">true</boolProp>
           <boolProp name="IfController.useExpression">true</boolProp>
         </IfController>
-        <hashTree>
-          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Setup" enabled="true">
-            <stringProp name="cacheKey">true</stringProp>
-            <stringProp name="filename"></stringProp>
-            <stringProp name="parameters"></stringProp>
-            <stringProp name="script">import com.ibm.msg.client.jms.JmsConnectionFactory
-import com.ibm.msg.client.jms.JmsFactoryFactory
-import com.ibm.msg.client.wmq.WMQConstants
-
-import javax.jms.Session
-
-def hostName = &quot;127.0.0.1&quot;
-def hostPort = 1414
-def channelName = &quot;DEV.APP.SVRCONN&quot;
-def queueManagerName = &quot;QM1&quot;
-def queueName = &quot;DEV.QUEUE.1&quot;
-
-def ff = JmsFactoryFactory.getInstance(WMQConstants.WMQ_PROVIDER)
-def cf = ff.createConnectionFactory()
-
-cf.setStringProperty(WMQConstants.WMQ_HOST_NAME, hostName)
-cf.setIntProperty(WMQConstants.WMQ_PORT, hostPort)
-cf.setStringProperty(WMQConstants.WMQ_CHANNEL, channelName)
-cf.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT)
-cf.setStringProperty(WMQConstants.WMQ_QUEUE_MANAGER, queueManagerName)
-
-//cf.setStringProperty(WMQConstants.USERID, &quot;admin&quot;)
-//cf.setStringProperty(WMQConstants.PASSWORD, &quot;passw0rd&quot;)
-//cf.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true)
-
-//def conn = cf.createConnection(&quot;admin&quot;, &quot;passw0rd&quot;)
-def conn = cf.createConnection()
-def sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)
-
-def destination = sess.createQueue(queueName)
-
-conn.start()
-
-log.info(&quot;#### Start completed!&quot;)
-
-System.getProperties().put(&quot;Session&quot;, sess)
-System.getProperties().put(&quot;Connection&quot;, conn)
-System.getProperties().put(&quot;Destination&quot;, destination)
-
-vars.put(&quot;setupDone&quot;, &quot;true&quot;)
-
-</stringProp>
-            <stringProp name="scriptLanguage">groovy</stringProp>
-          </JSR223Sampler>
-          <hashTree/>
-        </hashTree>
+        <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group - Producer" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group - Producer" enabled="false">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -222,7 +236,7 @@ SampleResult.setLatency( stop.toEpochMilli() - start.toEpochMilli() )
           <hashTree/>
         </hashTree>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group - Consumer" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group - Consumer" enabled="false">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
