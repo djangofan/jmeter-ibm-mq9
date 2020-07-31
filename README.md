@@ -5,11 +5,13 @@ Simplest examples of JMeter 5.3 with Dockerized IBM MQ 9.1.2.0.
 ## Setup MQ Service Script
 
 A bash script to start the default MQ.   This is not persistent but it can be configured to be persistent.
+This command might need a tweak of the --volume option in order to work on Windows.
 
 ```
 #!/bin/bash
 ## version is 9.1.2.0 at time of this documentation
 docker run \
+  --name mqdemo \
   --env LICENSE=accept \
   --env MQ_QMGR_NAME=QM1 \
   --env MQ_ENABLE_METRICS=true \
@@ -17,6 +19,7 @@ docker run \
   --publish 1414:1414 \
   --publish 9009:9443 \
   --publish 9157:9157 \
+  --volume "$PWD/cert/mykey:/etc/mqm/pki/keys/mykey" \
   --detach \
   ibmcom/mq
 ```
@@ -39,6 +42,14 @@ docker run \
     -  Password: passw0rd
 
 * Prometheus metrics:  http://localhost:9157/metrics
+
+#### Setup certs
+
+The `cert` and `key` are already supplied in this repo in the `cert/mykey` folder, but if you want to re-create them:
+
+     openssl req -newkey rsa:2048 -nodes -keyout key.key -x509 -days 365 -out key.crt
+
+The `cert/mykey` folder is mapped as a volume to the MQ server, which will enable the SSL connection on startup.
 
 
 ## JMeter Setup
