@@ -48,6 +48,11 @@
             <stringProp name="Argument.value">/Users/s006746/Documents/GitHub/QA/OTHER/jmeter-ibm-mq9/ks/clientkey.jks</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
+          <elementProp name="jksPassword" elementType="Argument">
+            <stringProp name="Argument.name">jksPassword</stringProp>
+            <stringProp name="Argument.value">changeit</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
         </collectionProp>
       </Arguments>
       <hashTree/>
@@ -85,22 +90,29 @@ import java.security.cert.PKIXRevocationChecker
 import java.security.cert.PKIXBuilderParameters
 import java.security.cert.X509CertSelector
 
-
 def hostName = &quot;127.0.0.1&quot;
 def hostPort = 1414
 def channelName = &quot;DEV.APP.SVRCONN&quot;
 def queueManagerName = &quot;QM1&quot;
 def queueName = &quot;DEV.QUEUE.1&quot;
 
+//https://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html
+//https://www.ibm.com/support/knowledgecenter/SSEQTJ_8.5.5/com.ibm.websphere.ihs.doc/ihs/rihs_ciphspec.html
+//https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_8.0.0/com.ibm.mq.dev.doc/q113220_.htm
+def cipherSpec = &quot;TLS_RSA_WITH_AES_128_GCM_SHA256A&quot;
 
-// https://github.standard.com/QA/hr-extract-requests-adaptor/blob/master/services/src/test/java/com/standard/qa/jms/SSLHRAuditProducer.java
+
 SSLContext sslContext() {
+
+	System.setProperty(&quot;javax.net.debug&quot;, &quot;ssl:handshake&quot;)
+	System.setProperty(&quot;javax.net.debug&quot;, &quot;ssl:record&quot;)
+	
     File file = new File(vars.get(&quot;jksLocation&quot;))
     def jkspath = file.getAbsolutePath()
     log.info(&quot;JKS Loaded: &quot; + jkspath)
     try (InputStream cert = new FileInputStream(jkspath)) {
         KeyStore caCertsKeyStore = KeyStore.getInstance(&quot;JKS&quot;)
-        caCertsKeyStore.load(cert, &quot;changeit&quot;.toCharArray())
+        caCertsKeyStore.load(cert, vars.get(&quot;jksPassword&quot;).toCharArray())
 
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
@@ -116,7 +128,7 @@ SSLContext sslContext() {
         PKIXBuilderParameters pkixParams = new PKIXBuilderParameters(caCertsKeyStore, new X509CertSelector())
         pkixParams.addCertPathChecker(rc)
 
-        kmf.init(caCertsKeyStore, &quot;changeit&quot;.toCharArray())
+        kmf.init(caCertsKeyStore, vars.get(&quot;jksPassword&quot;).toCharArray())
         tmf.init(new CertPathTrustManagerParameters(pkixParams))
 
         SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;)
@@ -125,7 +137,7 @@ SSLContext sslContext() {
         log.info(&quot;Finished acquiring ssl context.&quot;)
         return sslContext
     } catch (Exception e) {
-        log.error(e);
+        log.error(&quot;Error loading SSL context.&quot;, e);
     }
 }
 
@@ -142,7 +154,7 @@ cf.setStringProperty(WMQConstants.WMQ_CHANNEL, channelName)
 cf.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT)
 cf.setStringProperty(WMQConstants.WMQ_QUEUE_MANAGER, queueManagerName)
 
-cf.setStringProperty(WMQConstants.WMQ_SSL_CIPHER_SPEC, &quot;TLS_RSA_WITH_AES_128_GCM_SHA256&quot;)
+cf.setStringProperty(WMQConstants.WMQ_SSL_CIPHER_SPEC, cipherSpec)
 cf.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true)
 cf.setBooleanProperty(&quot;com.ibm.mq.cfg.useIBMCipherMappings&quot;, false)
 SSLSocketFactory sslSocketFactory = sslContext().getSocketFactory()

@@ -55,6 +55,11 @@ Also included is `clientkey.jks` keystore if you need to make a client connectio
 
 https://developer.ibm.com/components/ibm-mq/tutorials/mq-secure-msgs-tls/
 
+try this:
+$ openssl genrsa -aes256 -out jetty.key
+$ openssl req -new -x509 -newkey rsa:2048 -sha256 -key jetty.key -out jetty.crt
+
+
 
 ## JMeter Setup
 
