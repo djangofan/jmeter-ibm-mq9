@@ -104,7 +104,7 @@ Then, you will be able to load the project file.
 
 Here is the prototype code when I initially got this working.  The code currently checked into this repo may have been updated since then.
 
-## Client Setup Code (without SSL)
+## SSL Groovy Client Code
 
 Use an if-condition to ensure this only executes once during a multi-threaded test.
 
