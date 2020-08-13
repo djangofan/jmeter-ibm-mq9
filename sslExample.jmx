@@ -34,7 +34,7 @@
           </elementProp>
           <elementProp name="jmsUser" elementType="Argument">
             <stringProp name="Argument.name">jmsUser</stringProp>
-            <stringProp name="Argument.value">svc_IAQA_INT</stringProp>
+            <stringProp name="Argument.value">mqm</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="jmsPass" elementType="Argument">
@@ -59,7 +59,7 @@
           </elementProp>
           <elementProp name="channelName" elementType="Argument">
             <stringProp name="Argument.name">channelName</stringProp>
-            <stringProp name="Argument.value">EMAIL.SVRCONN</stringProp>
+            <stringProp name="Argument.value">DEV.APP.SVRCONN</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="queueName" elementType="Argument">
