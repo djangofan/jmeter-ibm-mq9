@@ -48,20 +48,17 @@ docker run \
 
 #### Setup Certs And SSL
 
-The `cert` and `key` are already supplied in this repo in the `cert/mykey` folder, but if you want to re-create them:
+TODO:  Need to create an `mq_client.ks`  that matches the cert served by the MQ server.
 
-     openssl req -newkey rsa:2048 -nodes -keyout key.key -x509 -days 365 -out key.crt
-
-The `cert/mykey` folder is mapped as a volume to the MQ server, which will enable the SSL connection on startup.
-
-Also included is `clientkey.jks` keystore if you need to make a client connection with it.
 
 https://developer.ibm.com/components/ibm-mq/tutorials/mq-secure-msgs-tls/
 
-try this:
-$ openssl genrsa -aes256 -out jetty.key
-$ openssl req -new -x509 -newkey rsa:2048 -sha256 -key jetty.key -out jetty.crt
 
+##### If you setup MQ to be SSL
+
+Start JMeter like so, using the included `sslExample.jmx` project file:
+
+    ./bin/jmeter -J"jmsPassword=passw0rd" -J"jksPassword=changeme"
 
 
 ## JMeter Setup
