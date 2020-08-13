@@ -67,6 +67,8 @@ Use the Java `Keytool Explorer` app.   Here are the steps I used:
 Start JMeter like so, using the included `sslExample.jmx` project file:
 
     ./bin/jmeter -J"jmsPassword=passw0rd" -J"jksPassword=changeme"
+    
+When you start JMeter, the `mq_client.jks` must be in the same folder as the project file.
 
 
 ## JMeter Setup
