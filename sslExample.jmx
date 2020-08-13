@@ -1,21 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.3">
   <hashTree>
-    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
-      <stringProp name="TestPlan.comments"></stringProp>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Performance Test Plan" enabled="true">
+      <stringProp name="TestPlan.comments">Variables used by test scripting in this test plan.</stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-        <collectionProp name="Arguments.arguments"/>
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="projectHome" elementType="Argument">
+            <stringProp name="Argument.name">projectHome</stringProp>
+            <stringProp name="Argument.value">${__BeanShell(import org.apache.jmeter.services.FileServer; FileServer.getFileServer().getBaseDir();)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="jmeterHome" elementType="Argument">
+            <stringProp name="Argument.name">jmeterHome</stringProp>
+            <stringProp name="Argument.value">${__BeanShell(System.getProperty(&quot;user.dir&quot;);)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="scriptHome" elementType="Argument">
+            <stringProp name="Argument.name">scriptHome</stringProp>
+            <stringProp name="Argument.value">${projectHome}/scripts</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="jksFile" elementType="Argument">
+            <stringProp name="Argument.name">jksFile</stringProp>
+            <stringProp name="Argument.value">mq_client.jks</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="jksPass" elementType="Argument">
+            <stringProp name="Argument.name">jksPass</stringProp>
+            <stringProp name="Argument.value">${__P(jksPassword,empty)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="jmsUser" elementType="Argument">
+            <stringProp name="Argument.name">jmsUser</stringProp>
+            <stringProp name="Argument.value">svc_IAQA_INT</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="jmsPass" elementType="Argument">
+            <stringProp name="Argument.name">jmsPass</stringProp>
+            <stringProp name="Argument.value">${__P(jmsPassword,empty)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="hostName" elementType="Argument">
+            <stringProp name="Argument.name">hostName</stringProp>
+            <stringProp name="Argument.value">localhost</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="queueManager" elementType="Argument">
+            <stringProp name="Argument.name">queueManager</stringProp>
+            <stringProp name="Argument.value">QM1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="hostPort" elementType="Argument">
+            <stringProp name="Argument.name">hostPort</stringProp>
+            <stringProp name="Argument.value">1414</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="channelName" elementType="Argument">
+            <stringProp name="Argument.name">channelName</stringProp>
+            <stringProp name="Argument.value">EMAIL.SVRCONN</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="queueName" elementType="Argument">
+            <stringProp name="Argument.name">queueName</stringProp>
+            <stringProp name="Argument.value">DEV.QUEUE.1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="cipherSpec" elementType="Argument">
+            <stringProp name="Argument.name">cipherSpec</stringProp>
+            <stringProp name="Argument.value">TLS_RSA_WITH_AES_128_GCM_SHA256</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
       </elementProp>
       <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
     <hashTree>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="JMeter Scenario Variables" enabled="true">
         <collectionProp name="Arguments.arguments">
+          <elementProp name="threads" elementType="Argument">
+            <stringProp name="Argument.name">threads</stringProp>
+            <stringProp name="Argument.value">${__P(threads,3)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
           <elementProp name="duration" elementType="Argument">
             <stringProp name="Argument.name">duration</stringProp>
-            <stringProp name="Argument.value">10</stringProp>
+            <stringProp name="Argument.value">${__P(duration,90)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="delay" elementType="Argument">
+            <stringProp name="Argument.name">delay</stringProp>
+            <stringProp name="Argument.value">${__P(delay,3)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">Delay startup of Consumer, not Producer</stringProp>
+          </elementProp>
+          <elementProp name="rampup" elementType="Argument">
+            <stringProp name="Argument.name">rampup</stringProp>
+            <stringProp name="Argument.value">${__P(rampup,10)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="loops" elementType="Argument">
+            <stringProp name="Argument.name">loops</stringProp>
+            <stringProp name="Argument.value">${__P(loops,1)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="throttlePerSecond" elementType="Argument">
+            <stringProp name="Argument.name">throttlePerSecond</stringProp>
+            <stringProp name="Argument.value">${__P(throttlePerSecond,50)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="setupDone" elementType="Argument">
@@ -28,32 +120,8 @@
             <stringProp name="Argument.value">false</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
-          <elementProp name="nrThreads" elementType="Argument">
-            <stringProp name="Argument.name">nrThreads</stringProp>
-            <stringProp name="Argument.value">1</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="sampleAtSecond" elementType="Argument">
-            <stringProp name="Argument.name">sampleAtSecond</stringProp>
-            <stringProp name="Argument.value">50</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="delay" elementType="Argument">
-            <stringProp name="Argument.name">delay</stringProp>
-            <stringProp name="Argument.value">2</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="jksLocation" elementType="Argument">
-            <stringProp name="Argument.name">jksLocation</stringProp>
-            <stringProp name="Argument.value">/Users/s006746/Documents/GitHub/QA/OTHER/jmeter-ibm-mq9/ks/clientkey.jks</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
-          <elementProp name="jksPassword" elementType="Argument">
-            <stringProp name="Argument.name">jksPassword</stringProp>
-            <stringProp name="Argument.value">changeit</stringProp>
-            <stringProp name="Argument.metadata">=</stringProp>
-          </elementProp>
         </collectionProp>
+        <stringProp name="TestPlan.comments">Variables that specifically control the JMeter scenario load and scheduling.</stringProp>
       </Arguments>
       <hashTree/>
       <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group" enabled="true">
@@ -63,18 +131,24 @@
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">1</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </SetupThreadGroup>
       <hashTree>
-        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Setup" enabled="true">
-          <stringProp name="cacheKey">true</stringProp>
-          <stringProp name="filename"></stringProp>
-          <stringProp name="parameters"></stringProp>
-          <stringProp name="script">import com.ibm.msg.client.jms.JmsConnectionFactory
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="true">
+          <stringProp name="IfController.condition">${__groovy(vars.get(&apos;setupDone&apos;).equals(&apos;false&apos;),)}</stringProp>
+          <boolProp name="IfController.evaluateAll">true</boolProp>
+          <boolProp name="IfController.useExpression">true</boolProp>
+        </IfController>
+        <hashTree>
+          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JMS Connection Setup" enabled="true">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">import com.ibm.msg.client.jms.JmsConnectionFactory
 import com.ibm.msg.client.jms.JmsFactoryFactory
 import com.ibm.msg.client.wmq.WMQConstants
 import javax.net.ssl.SSLSocketFactory
@@ -90,29 +164,23 @@ import java.security.cert.PKIXRevocationChecker
 import java.security.cert.PKIXBuilderParameters
 import java.security.cert.X509CertSelector
 
-def hostName = &quot;127.0.0.1&quot;
-def hostPort = 1414
-def channelName = &quot;DEV.APP.SVRCONN&quot;
-def queueManagerName = &quot;QM1&quot;
-def queueName = &quot;DEV.QUEUE.1&quot;
-
-//https://docs.oracle.com/javase/7/docs/technotes/guides/security/StandardNames.html
-//https://www.ibm.com/support/knowledgecenter/SSEQTJ_8.5.5/com.ibm.websphere.ihs.doc/ihs/rihs_ciphspec.html
-//https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_8.0.0/com.ibm.mq.dev.doc/q113220_.htm
-def cipherSpec = &quot;TLS_RSA_WITH_AES_128_GCM_SHA256A&quot;
-
+log.info(&quot;#### Start... &quot;)
+log.info(&quot;JMeter Project File Location: &quot; + vars.get(&quot;projectHome&quot;))
+log.info(&quot;JMeter Home: &quot; + vars.get(&quot;jmeterHome&quot;))
+//System.setProperty(&quot;javax.net.debug&quot;, &quot;ssl:handshake&quot;)
+//System.setProperty(&quot;javax.net.debug&quot;, &quot;ssl:record&quot;)
 
 SSLContext sslContext() {
+    def jksPassword = vars.get(&quot;jksPass&quot;).toCharArray()
+    log.info(&quot;Password: &quot; + jksPassword)
+    File file = new File(vars.get(&quot;projectHome&quot;) + &quot;/&quot; + vars.get(&quot;jksFile&quot;))
+    def jksPath = file.getAbsolutePath()
+    log.info(&quot;JKS Loaded: &quot; + jksPath)
 
-	System.setProperty(&quot;javax.net.debug&quot;, &quot;ssl:handshake&quot;)
-	System.setProperty(&quot;javax.net.debug&quot;, &quot;ssl:record&quot;)
-	
-    File file = new File(vars.get(&quot;jksLocation&quot;))
-    def jkspath = file.getAbsolutePath()
-    log.info(&quot;JKS Loaded: &quot; + jkspath)
-    try (InputStream cert = new FileInputStream(jkspath)) {
-        KeyStore caCertsKeyStore = KeyStore.getInstance(&quot;JKS&quot;)
-        caCertsKeyStore.load(cert, vars.get(&quot;jksPassword&quot;).toCharArray())
+    new FileInputStream(jksPath).with { cert -&gt;
+       try {
+       KeyStore caCertsKeyStore = KeyStore.getInstance(&quot;JKS&quot;)
+        caCertsKeyStore.load(cert, jksPassword)
 
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
@@ -128,7 +196,7 @@ SSLContext sslContext() {
         PKIXBuilderParameters pkixParams = new PKIXBuilderParameters(caCertsKeyStore, new X509CertSelector())
         pkixParams.addCertPathChecker(rc)
 
-        kmf.init(caCertsKeyStore, vars.get(&quot;jksPassword&quot;).toCharArray())
+        kmf.init(caCertsKeyStore, jksPassword)
         tmf.init(new CertPathTrustManagerParameters(pkixParams))
 
         SSLContext sslContext = SSLContext.getInstance(&quot;TLS&quot;)
@@ -136,44 +204,42 @@ SSLContext sslContext() {
 
         log.info(&quot;Finished acquiring ssl context.&quot;)
         return sslContext
-    } catch (Exception e) {
-        log.error(&quot;Error loading SSL context.&quot;, e);
+       } catch(Exception e) {
+       	log.error(&quot;Error loading SSL context.&quot;, e)
+       } finally {
+       	cert.close()
+       }
     }
 }
-
-
-log.info(&quot;#### Start... &quot;)
-
 
 def ff = JmsFactoryFactory.getInstance(WMQConstants.WMQ_PROVIDER)
 def cf = ff.createConnectionFactory()
 
-cf.setStringProperty(WMQConstants.WMQ_HOST_NAME, hostName)
-cf.setIntProperty(WMQConstants.WMQ_PORT, hostPort)
-cf.setStringProperty(WMQConstants.WMQ_CHANNEL, channelName)
-cf.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT)
-cf.setStringProperty(WMQConstants.WMQ_QUEUE_MANAGER, queueManagerName)
+cf.setHostName(vars.get(&quot;hostName&quot;))
+cf.setQueueManager(vars.get(&quot;queueManager&quot;))
+cf.setPort(Integer.parseInt(vars.get(&quot;hostPort&quot;)))
+cf.setChannel(vars.get(&quot;channelName&quot;))
+cf.setTransportType(WMQConstants.WMQ_CM_CLIENT)
+cf.setCCSID(1208)
+cf.setAppName(&quot;jmeter&quot;)
 
-cf.setStringProperty(WMQConstants.WMQ_SSL_CIPHER_SPEC, cipherSpec)
 cf.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true)
-cf.setBooleanProperty(&quot;com.ibm.mq.cfg.useIBMCipherMappings&quot;, false)
+cf.setStringProperty(WMQConstants.WMQ_SSL_CIPHER_SPEC, vars.get(&quot;cipherSpec&quot;))
+cf.setStringProperty(WMQConstants.USERID, vars.get(&quot;jmsUser&quot;))
+cf.setStringProperty(WMQConstants.PASSWORD, vars.get(&quot;jmsPass&quot;))
+System.setProperty(&quot;com.ibm.mq.cfg.useIBMCipherMappings&quot;, &quot;false&quot;)
+
 SSLSocketFactory sslSocketFactory = sslContext().getSocketFactory()
 cf.setSSLSocketFactory(sslSocketFactory)
 
-log.error(&quot;STOP&quot;)
-
-
-//cf.setStringProperty(WMQConstants.USERID, &quot;admin&quot;)
-//cf.setStringProperty(WMQConstants.PASSWORD, &quot;passw0rd&quot;)
-//def conn = cf.createConnection(&quot;admin&quot;, &quot;passw0rd&quot;)
 def conn = cf.createConnection()
 def sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)
 
-def destination = sess.createQueue(queueName)
+def destination = sess.createQueue(vars.get(&quot;queueName&quot;))
 
-conn.start()
+conn.start()  // create producer or consumer instance after singleton connection is started
 
-log.info(&quot;#### Start completed!&quot;)
+log.info(&quot;#### Connection created ...&quot;)
 
 System.getProperties().put(&quot;Session&quot;, sess)
 System.getProperties().put(&quot;Connection&quot;, conn)
@@ -182,23 +248,18 @@ System.getProperties().put(&quot;Destination&quot;, destination)
 vars.put(&quot;setupDone&quot;, &quot;true&quot;)
 
 </stringProp>
-          <stringProp name="scriptLanguage">groovy</stringProp>
-        </JSR223Sampler>
-        <hashTree/>
-        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="true">
-          <stringProp name="IfController.condition">&quot;${setupDone}&quot;==&quot;false&quot;</stringProp>
-          <boolProp name="IfController.evaluateAll">true</boolProp>
-          <boolProp name="IfController.useExpression">true</boolProp>
-        </IfController>
-        <hashTree/>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223Sampler>
+          <hashTree/>
+        </hashTree>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group - Producer" enabled="false">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group - Producer" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">${nrThreads}</stringProp>
+        <stringProp name="ThreadGroup.num_threads">${threads}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.duration">${__jexl2(${duration})}</stringProp>
@@ -206,21 +267,17 @@ vars.put(&quot;setupDone&quot;, &quot;true&quot;)
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Simple Controller" enabled="true">
-          <stringProp name="TestPlan.comments">Simple Controller isn&apos;t requred here for this to work.</stringProp>
-        </GenericController>
-        <hashTree>
-          <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
-            <intProp name="calcMode">2</intProp>
-            <stringProp name="throughput">${__jexl2(${sampleAtSecond}*60)}</stringProp>
-          </ConstantThroughputTimer>
-          <hashTree/>
-          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Message Producer" enabled="true">
-            <stringProp name="scriptLanguage">groovy</stringProp>
-            <stringProp name="parameters"></stringProp>
-            <stringProp name="filename"></stringProp>
-            <stringProp name="cacheKey">true</stringProp>
-            <stringProp name="script">import java.time.Instant
+        <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
+          <intProp name="calcMode">2</intProp>
+          <stringProp name="throughput">${__jexl2(${throttlePerSecond}*60)}</stringProp>
+        </ConstantThroughputTimer>
+        <hashTree/>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Message Producer" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="cacheKey">true</stringProp>
+          <stringProp name="script">import java.time.Instant
 
 def sess = System.getProperties().get(&quot;Session&quot;)
 def destination = System.getProperties().get(&quot;Destination&quot;)
@@ -244,17 +301,16 @@ SampleResult.setLatency( stop.toEpochMilli() - start.toEpochMilli() )
 
 
 </stringProp>
-          </JSR223Sampler>
-          <hashTree/>
-        </hashTree>
+        </JSR223Sampler>
+        <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group - Consumer" enabled="false">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group - Consumer" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">${nrThreads}</stringProp>
+        <stringProp name="ThreadGroup.num_threads">${threads}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.duration">${__jexl2(${duration})}</stringProp>
@@ -262,21 +318,17 @@ SampleResult.setLatency( stop.toEpochMilli() - start.toEpochMilli() )
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Simple Controller" enabled="true">
-          <stringProp name="TestPlan.comments">Simple Controller isn&apos;t requred here for this to work.</stringProp>
-        </GenericController>
-        <hashTree>
-          <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
-            <intProp name="calcMode">2</intProp>
-            <stringProp name="throughput">${__jexl2(${sampleAtSecond}*60)}</stringProp>
-          </ConstantThroughputTimer>
-          <hashTree/>
-          <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Message Consumer" enabled="true">
-            <stringProp name="scriptLanguage">groovy</stringProp>
-            <stringProp name="parameters"></stringProp>
-            <stringProp name="filename"></stringProp>
-            <stringProp name="cacheKey">true</stringProp>
-            <stringProp name="script">import javax.jms.TextMessage
+        <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
+          <intProp name="calcMode">2</intProp>
+          <stringProp name="throughput">${__jexl2(${throttlePerSecond}*60)}</stringProp>
+        </ConstantThroughputTimer>
+        <hashTree/>
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Message Consumer" enabled="true">
+          <stringProp name="scriptLanguage">groovy</stringProp>
+          <stringProp name="parameters"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="cacheKey">true</stringProp>
+          <stringProp name="script">import javax.jms.TextMessage
 import javax.jms.BytesMessage
 
 import java.time.LocalDate
@@ -322,9 +374,8 @@ if (msg != null) {
 
 consumer.close()
 </stringProp>
-          </JSR223Sampler>
-          <hashTree/>
-        </hashTree>
+        </JSR223Sampler>
+        <hashTree/>
       </hashTree>
       <PostThreadGroup guiclass="PostThreadGroupGui" testclass="PostThreadGroup" testname="tearDown Thread Group" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
@@ -333,7 +384,7 @@ consumer.close()
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">1</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
@@ -341,12 +392,12 @@ consumer.close()
       </PostThreadGroup>
       <hashTree>
         <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="true">
-          <stringProp name="IfController.condition">&quot;${stopDone}&quot;==&quot;false&quot;</stringProp>
+          <stringProp name="IfController.condition">${__groovy(vars.get(&apos;stopDone&apos;).equals(&apos;false&apos;),)}</stringProp>
           <boolProp name="IfController.evaluateAll">true</boolProp>
           <boolProp name="IfController.useExpression">true</boolProp>
         </IfController>
         <hashTree>
-          <JSR223Timer guiclass="TestBeanGUI" testclass="JSR223Timer" testname="JSR223 Stop" enabled="true">
+          <JSR223Timer guiclass="TestBeanGUI" testclass="JSR223Timer" testname="JMS Connection Stop" enabled="true">
             <stringProp name="scriptLanguage">groovy</stringProp>
             <stringProp name="parameters"></stringProp>
             <stringProp name="filename"></stringProp>
