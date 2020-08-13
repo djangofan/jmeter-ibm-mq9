@@ -2,9 +2,6 @@
 
 Simplest examples of JMeter 5.3 with Dockerized IBM MQ 9.1.2.0.
 
-NOTE: the non-ssl test in this repo is working but I am still working on getting the SSL test working.
-Having a bit of trouble with creating a certificate that matches a particular IBM supported cipher spec.
-
 ## Setup MQ Service Script
 
 A bash script to start the default MQ.   This is not persistent but it can be configured to be persistent.
