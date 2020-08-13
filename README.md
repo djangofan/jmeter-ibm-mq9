@@ -50,8 +50,17 @@ docker run \
 
 TODO:  Need to create an `mq_client.ks`  that matches the cert served by the MQ server.
 
-
 https://developer.ibm.com/components/ibm-mq/tutorials/mq-secure-msgs-tls/
+
+##### What I did
+
+Use the Java `Keytool Explorer` app.   Here are the steps I used:
+
+* Create a new `Server keypair` as `mq_client.jks` ,  2048 bit RSA and 10 years long.
+* Export the `certificate chain` as `tls.crt`
+* Export the `private key` as `tls.key`
+* Load those two files into the mykey folder shown in the Docker config above.
+
 
 
 ##### If you setup MQ to be SSL
