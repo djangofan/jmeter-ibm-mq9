@@ -112,30 +112,95 @@ Use an if-condition to ensure this only executes once during a multi-threaded te
 import com.ibm.msg.client.jms.JmsConnectionFactory
 import com.ibm.msg.client.jms.JmsFactoryFactory
 import com.ibm.msg.client.wmq.WMQConstants
-
+import javax.net.ssl.SSLSocketFactory
+import javax.net.ssl.SSLContext
+import javax.net.ssl.KeyManagerFactory
+import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.CertPathTrustManagerParameters
 import javax.jms.Session
+import java.security.KeyStore
+import java.security.SecureRandom
+import java.security.cert.CertPathBuilder
+import java.security.cert.PKIXRevocationChecker
+import java.security.cert.PKIXBuilderParameters
+import java.security.cert.X509CertSelector
 
-def hostName = "127.0.0.1"
-def hostPort = 1414
-def channelName = "DEV.APP.SVRCONN"
-def queueManagerName = "QM1"
-def queueName = "DEV.QUEUE.1"
+log.info("#### Start... ")
+log.info("JMeter Project File Location: " + vars.get("projectHome"))
+log.info("JMeter Home: " + vars.get("jmeterHome"))
+//System.setProperty("javax.net.debug", "ssl:handshake")
+//System.setProperty("javax.net.debug", "ssl:record")
+
+SSLContext sslContext() {
+    def jksPassword = vars.get("jksPass").toCharArray()
+    log.info("Password: " + jksPassword)
+    File file = new File(vars.get("projectHome") + "/" + vars.get("jksFile"))
+    def jksPath = file.getAbsolutePath()
+    log.info("JKS Loaded: " + jksPath)
+
+    new FileInputStream(jksPath).with { cert ->
+       try {
+       KeyStore caCertsKeyStore = KeyStore.getInstance("JKS")
+        caCertsKeyStore.load(cert, jksPassword)
+
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm())
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+
+        CertPathBuilder cpb = CertPathBuilder.getInstance("PKIX")
+        PKIXRevocationChecker rc = (PKIXRevocationChecker) cpb.getRevocationChecker()
+        rc.setOptions(EnumSet.of(
+            PKIXRevocationChecker.Option.PREFER_CRLS,
+            PKIXRevocationChecker.Option.ONLY_END_ENTITY,
+            PKIXRevocationChecker.Option.SOFT_FAIL,
+            PKIXRevocationChecker.Option.NO_FALLBACK))
+                    
+        PKIXBuilderParameters pkixParams = new PKIXBuilderParameters(caCertsKeyStore, new X509CertSelector())
+        pkixParams.addCertPathChecker(rc)
+
+        kmf.init(caCertsKeyStore, jksPassword)
+        tmf.init(new CertPathTrustManagerParameters(pkixParams))
+
+        SSLContext sslContext = SSLContext.getInstance("TLS")
+        sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom())
+
+        log.info("Finished acquiring ssl context.")
+        return sslContext
+       } catch(Exception e) {
+       	log.error("Error loading SSL context.", e)
+       } finally {
+       	cert.close()
+       }
+    }
+}
 
 def ff = JmsFactoryFactory.getInstance(WMQConstants.WMQ_PROVIDER)
 def cf = ff.createConnectionFactory()
 
-cf.setStringProperty(WMQConstants.WMQ_HOST_NAME, hostName)
-cf.setIntProperty(WMQConstants.WMQ_PORT, hostPort)
-cf.setStringProperty(WMQConstants.WMQ_CHANNEL, channelName)
-cf.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT)
-cf.setStringProperty(WMQConstants.WMQ_QUEUE_MANAGER, queueManagerName)
+cf.setHostName(vars.get("hostName"))
+cf.setQueueManager(vars.get("queueManager"))
+cf.setPort(Integer.parseInt(vars.get("hostPort")))
+cf.setChannel(vars.get("channelName"))
+cf.setTransportType(WMQConstants.WMQ_CM_CLIENT)
+cf.setCCSID(1208)
+cf.setAppName("jmeter")
+
+cf.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true)
+cf.setStringProperty(WMQConstants.WMQ_SSL_CIPHER_SPEC, vars.get("cipherSpec"))
+cf.setStringProperty(WMQConstants.USERID, vars.get("jmsUser"))
+cf.setStringProperty(WMQConstants.PASSWORD, vars.get("jmsPass"))
+System.setProperty("com.ibm.mq.cfg.useIBMCipherMappings", "false")
+
+SSLSocketFactory sslSocketFactory = sslContext().getSocketFactory()
+cf.setSSLSocketFactory(sslSocketFactory)
 
 def conn = cf.createConnection()
 def sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)
 
-def destination = sess.createQueue(queueName)
-conn.start()
-log.info("#### Start completed!")
+def destination = sess.createQueue(vars.get("queueName"))
+
+conn.start()  // create producer or consumer instance after singleton connection is started
+
+log.info("#### Connection created ...")
 
 System.getProperties().put("Session", sess)
 System.getProperties().put("Connection", conn)
